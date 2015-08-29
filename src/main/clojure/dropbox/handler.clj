@@ -22,7 +22,7 @@
    :headers {"Content-Type" "image/jpeg"}
    :body    (new ByteArrayInputStream image)})
 
-(defn invalid [id]
+(defn invalid-id? [id]
   (try
     (Long/valueOf id) false
     (catch Exception e true)))
@@ -30,7 +30,7 @@
 (defn get-files [files]
   (get (stringify-keys files) "file"))
 
-(defn invalid-files [files]
+(defn invalid-files? [files]
   (try
     (FileValidator/invalidFiles (get-files files))
     (catch Exception e
@@ -39,18 +39,18 @@
 (defroutes app-routes
            (GET "/files" [] (-> (FileReader/getPictures) response-json-type))
            (GET "/picture/:id" {params :params}
-             (if (invalid (params :id))
+             (if (invalid-id? (params :id))
                (response-json-type "image does not exist")
                (-> (FileReader/getPicture (params :id))
                    response-img-type)))
            (wrap-multipart-params
              (POST "/add" {files :multipart-params}
-               (if (invalid-files files)
+               (if (invalid-files? files)
                  (response-json-type "failure")
                  (do (FileCrud/saveFiles (get-files files))
                      (response-json-type "success")))))
            (POST "/remove/:id" {params :params}
-             (if (invalid (params :id))
+             (if (invalid-id? (params :id))
                (response-json-type "image does not exist")
                (do (FileCrud/deleteOneFile (params :id))
                    (response-json-type "success"))))
