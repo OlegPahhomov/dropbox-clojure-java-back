@@ -23,7 +23,6 @@ public class FileCrud {
      */
     public static void saveFilesMap(Map<String, Map<String, Object>> files) throws IOException, SQLException {
         for (Map<String, Object> file : files.values()) {
-            System.out.println(file);
             saveOneFile(file);
         }
     }
@@ -33,7 +32,6 @@ public class FileCrud {
      */
     public static void saveFiles(List<Map<String, Object>> files) throws IOException, SQLException {
         for (Map<String, Object> file : files) {
-            System.out.println(file);
             saveOneFile(file);
         }
     }

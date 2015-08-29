@@ -9,30 +9,51 @@
             [clojure.walk :refer [stringify-keys]]
             )
   (:import (files.crud FileReader FileCrud)
-           (java.io ByteArrayInputStream)))
+           (java.io ByteArrayInputStream)
+           (files.validator FileValidator)))
 
 (defn response-json-type [body]
   {:status  200
    :headers {"Content-Type" "application/json"}
-   :body    (str body)})
+   :body    (str (json/write-str body))})
 
 (defn response-img-type [image]
   {:status  200
    :headers {"Content-Type" "image/jpeg"}
    :body    (new ByteArrayInputStream image)})
 
+(defn invalid [id]
+  (try
+    (Long/valueOf id) false
+    (catch Exception e true)))
+
+(defn get-files [files]
+  (get (stringify-keys files) "file"))
+
+(defn invalid-files [files]
+  (try
+    (FileValidator/invalidFiles (get-files files))
+    (catch Exception e
+      true)))
 
 (defroutes app-routes
-           (GET "/files" [] (-> (FileReader/getPictures)
-                                json/write-str
-                                response-json-type))
-           (GET "/picture/:id" {params :params} (response-img-type (FileReader/getPicture (params :id))))
+           (GET "/files" [] (-> (FileReader/getPictures) response-json-type))
+           (GET "/picture/:id" {params :params}
+             (if (invalid (params :id))
+               (response-json-type "image does not exist")
+               (-> (FileReader/getPicture (params :id))
+                   response-img-type)))
            (wrap-multipart-params
-             (POST "/add" {files :multipart-params} (do
-                                                      (FileCrud/saveFiles (get (stringify-keys files) "file"))
-                                                      (response-json-type (json/write-str "success")))))
-           (POST "/remove/:id" {params :params} (do (FileCrud/deleteOneFile (params :id))
-                                                    (response-json-type (json/write-str "success"))))
+             (POST "/add" {files :multipart-params}
+               (if (invalid-files files)
+                 (response-json-type "failure")
+                 (do (FileCrud/saveFiles (get-files files))
+                     (response-json-type "success")))))
+           (POST "/remove/:id" {params :params}
+             (if (invalid (params :id))
+               (response-json-type "image does not exist")
+               (do (FileCrud/deleteOneFile (params :id))
+                   (response-json-type "success"))))
            (route/not-found "Not Found"))
 
 (def app
