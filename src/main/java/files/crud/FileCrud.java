@@ -58,13 +58,13 @@ public class FileCrud {
     }
 
     public static void deleteOneFile(String id) throws SQLException {
-        deleteOneFile(Integer.valueOf(id));
+        deleteOneFile(Long.valueOf(id));
     }
 
-    private static void deleteOneFile(Integer id) throws SQLException {
+    private static void deleteOneFile(Long id) throws SQLException {
         try (Connection connection = AppDataSource.getTransactConnection();
              PreparedStatement ps = connection.prepareStatement("DELETE FROM FILE WHERE ID=?")) {
-            ps.setInt(1, id);
+            ps.setLong(1, id);
             ps.executeUpdate();
             connection.commit();
         }
