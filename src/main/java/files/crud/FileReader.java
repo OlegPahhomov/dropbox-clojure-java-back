@@ -26,12 +26,11 @@ public class FileReader {
         }
     }
 
-   /* public static Object getPicture(Request request) throws SQLException {
-        Long id = Long.valueOf(request.params(":id"));
-        return getPicture(id);
-    }*/
+    public static Object getPicture(String id) throws SQLException{
+        return getPicture(Long.valueOf(id));
+    }
 
-    public static Object getPicture(Long id) throws SQLException {
+    private static Object getPicture(Long id) throws SQLException {
         try (Connection connection = AppDataSource.getConnection()) {
             return queryRunner.query(connection, "SELECT content FROM FILE WHERE ID=?", new ScalarHandler<>(), id);
         }
