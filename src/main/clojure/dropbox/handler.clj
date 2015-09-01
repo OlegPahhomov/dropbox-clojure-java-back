@@ -37,7 +37,8 @@
       true)))
 
 (defroutes app-routes
-           (GET "/files" [] (-> (FileReader/getPictures) response-json-type))
+           (GET "/files" [] (-> (FileReader/getPictures)
+                                response-json-type))
            (GET "/picture/:id" {params :params}
              (if (invalid-id? (params :id))
                (response-json-type "image does not exist")
@@ -62,5 +63,4 @@
       (wrap-cors
         :access-control-allow-origin [#"http://localhost:63342/*"]
         :access-control-allow-methods [:get :post]
-        :access-control-allow-headers [:all])
-      ))
+        :access-control-allow-headers [:all])))
