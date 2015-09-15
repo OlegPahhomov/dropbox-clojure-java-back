@@ -43,6 +43,11 @@
                (response-json-type "image does not exist")
                (-> (FileReader/getPicture (params :id))
                    response-img-type)))
+           (GET "/picture/small/:id" {params :params}
+             (if (invalid-id? (params :id))
+               (response-json-type "image does not exist")
+               (-> (FileReader/getPicture (params :id))
+                   response-img-type)))
            (wrap-multipart-params
              (POST "/add" {files :multipart-params}
                (if (invalid-files? files)
